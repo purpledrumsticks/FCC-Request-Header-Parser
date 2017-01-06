@@ -1,12 +1,18 @@
 let express = require('express');
-let os = require('os');
 let app = express();
 
 app.get('/', (req, res) => {
+  let r = require('ua-parser').parse(req.headers['user-agent']);
+
+  let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  if (ip.substr(0, 7) === "::ffff:") {
+    ip = ip.substr(7);
+  }
+
   let userObject = {
-    ipaddress: req.ip,
+    ipaddress: ip,
     language: req.headers["accept-language"].split(',')[0],
-    software: os.type() + ' ' + os.release()
+    software: r.os.toString()
   };
 
   res.send(userObject);
